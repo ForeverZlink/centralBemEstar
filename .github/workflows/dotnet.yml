@@ -1,0 +1,30 @@
+name: Deploy Blazor WebAssembly
+
+on:
+  push:
+    branches:
+      - main  # Altere para a branch que desejar
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔹 Checkout do código
+        uses: actions/checkout@v4
+
+      - name: 🔹 Instalar .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.0.x  # Ajuste para a versão do seu projeto
+
+      - name: 🔹 Instalar dotnet serve
+        run: dotnet tool install --global dotnet-serve
+
+      - name: 🔹 Publicar Blazor WebAssembly
+        run: dotnet publish -c Release --output dist
+
+      - name: 🔹 Rodar dotnet serve
+        run: |
+          cd bin/Release/net8.0/publish/wwwroot
+          nohup dotnet serve --address 0.0.0.0 --port 5000 --default-extensions .html --spa &
