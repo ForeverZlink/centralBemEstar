@@ -1,31 +1,37 @@
-name: gh-pages
+name: Deploy Blazor WebAssembly to GitHub Pages
 
 on:
   push:
     branches:
-      - master
-
-permissions: 
-  contents: write
+      - main  # Substitua pelo nome da sua branch principal
 
 jobs:
-  deploy:
-
+  build_and_deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - name: Checkout do código
+      uses: actions/checkout@v3
+
+    - name: Instalar .NET SDK
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '9.0.x'
-    - name: Publish with dotnet
-    # changes the base-tag in index.html from '/' to 'BlazorAppSpendsRegister' to match GitHub Pages repository subdirectory
-    - name: Change base-tag in index.html from / to centralBemEstar
-      run: sed -i 's/<base href="\/" \/>/<base href="\/centralBemEstar\/" \/>/g' wwwroot/index.html
-    - name: Commit wwwroot to GitHub Pages
-      uses: JamesIves/github-pages-deploy-action@3.7.1
+        dotnet-version: '8.0.x'  # Altere conforme sua versão do .NET
+
+    - name: Restaurar dependências
+      run: dotnet restore
+
+    - name: Compilar aplicação
+      run: dotnet publish -c Release --output release
+
+    - name: Copiar arquivos para GitHub Pages
+      run: |
+        mkdir -p ./deploy
+        cp -r release/wwwroot/* ./deploy/
+
+    - name: Deploy para GitHub Pages
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        GITHUB_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-        BRANCH: gh-pages
-        FOLDER: build/wwwroot
+        branch: gh-pages
+        folder: deploy
+        clean: true
