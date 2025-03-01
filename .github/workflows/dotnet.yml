@@ -1,34 +1,27 @@
-name: Deploy Blazor WebAssembly to GitHub Pages
+name: .NET Serve Workflow
 
 on:
   push:
     branches:
-      - main  # A branch que você deseja fazer o deploy, altere para a sua
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout do código
-      - name: 🔹 Checkout do código
-        uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      # Instalar .NET SDK
-      - name: 🔹 Instalar .NET SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x  # Altere para a versão correta do seu projeto
+    - name: Set up .NET SDK
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0'  # Ajuste para a versão do .NET que você está usando
 
-      # Publicar Blazor WebAssembly
-      - name: 🔹 Publicar Blazor WebAssembly
-        run: |
-          dotnet publish -c Release -o ./publish
-
-      # Configurar GitHub Pages (usando a ação do GitHub Pages para publicar)
-      - name: 🔹 Deploy para GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          branch: gh-pages  # A branch para onde o conteúdo será enviado
-          folder: ./publish/wwwroot  # O diretório contendo os arquivos estáticos da aplicação
-``
+    - name: Run .NET Serve
+      run: |
+        cd /wwwroot  # Altere para o caminho correto
+        dotnet serve
